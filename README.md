@@ -162,6 +162,19 @@ curl -F "path=@settings.json" http://KRAKEN_IP:8081/upload\?path\=/
 
 The DSP software would then notice the settings changes and apply them automatically.
 
+#### Alternative via middleware
+
+You can also use the middleware API to retrive and change the settings.json, the api is avaliable under `http://KRAKEN_IP:8042/settings` and works without enabling the remote mode mentioned in the software startup.
+
+Use a simple GET request to the endpoint to retrive the current settings in json format.
+To set a new settings file just send the json data as a POST request to the endpoint.
+
+A typical use would be the following:
+
+* GET request - retrive current settings
+* modify settings in json
+* POST request - save new settings to kraken
+
 
 ## For Contributors
 

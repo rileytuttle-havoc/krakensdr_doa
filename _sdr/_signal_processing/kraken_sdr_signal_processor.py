@@ -811,23 +811,7 @@ class SignalProcessor(threading.Thread):
                             self.snrs[0],
                         )
 
-                        if self.DOA_data_format == "Kraken Pro Local":
-                            self.wr_json(
-                                self.station_id,
-                                DOA_str,
-                                confidence_str,
-                                max_power_level_str,
-                                write_freq,
-                                doa_result_log,
-                                self.latitude,
-                                self.longitude,
-                                self.heading,
-                                self.speed,
-                                self.adc_overdrive,
-                                self.number_of_correlated_sources[0],
-                                self.snrs[0],
-                            )
-                        elif self.DOA_data_format == "Kraken Pro Remote":
+                        if self.DOA_data_format == "Kraken Pro Local" or self.DOA_data_format == "Kraken Pro Remote" :
                             # for multi VFOs: send each VFO as a single Message
 
                             for j, freq in enumerate(self.freq_list):

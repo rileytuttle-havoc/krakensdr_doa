@@ -1,6 +1,7 @@
 // This is a Websocket server that is a middleware to interface wth the new Krakensdr app and future things
 require('log-timestamp');
 const express = require('express')
+const cors = require('cors');
 const ws = require('ws');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -43,7 +44,7 @@ function loadSettingsJson (){
   // check if Settings changed via Hash
   if (settingsJson.center_freq) {
     const oldHash = crypto.createHash('md5').update(JSON.stringify(settingsJson)).digest("hex")
-    // load ne Data and ten check if there are changes
+    // load new Data and then check if there are changes
     try {
         let rawdata = fs.readFileSync(settingsJsonPath);
         let newSettings = JSON.parse(rawdata);
@@ -101,7 +102,7 @@ function websocketPing (){
 }
 
 function websocketConnect (){
-  wsClient = new ws(remoteServer);
+  wsClient = new ws(remoteServer, {rejectUnauthorized: false});
 
   wsClient.onopen = () => {
     // start ping interval
@@ -160,11 +161,51 @@ function checkForRemoteMode (){
 
 checkForRemoteMode()
 
-app.use(express.json())
+if(inRemoteMode){
+  websocketConnect();
+} else {
+  // when not in Remote mode start websocket server for local connections
+  // Websocket that sends incomming Data to App
+  wsServer = new ws.Server({ noServer: true });
+  wsServer.on('connection', socket => {
+    console.log('Got websocket connection!')
+    socket.on('message', message => {
+        console.log("received: %s",message)
+        //socket.send('Connection works to KrakenSDR')
+      });
+  });
 
-app.get('/', (req, res) => {
-    res.send('Hi, this is the KrakenSDR middleware server :)')
+  const server = app.listen(wsport);
+  server.on('upgrade', (request, socket, head) => {
+    wsServer.handleUpgrade(request, socket, head, socket => {
+      wsServer.emit('connection', socket, request);
+    });
+  });
+}
+
+app.use(express.json())
+app.use(cors());
+app.use(express.static('public'))
+
+// get settings from settings.json as external API 
+app.get('/settings', (req, res) => {
+  res.send(JSON.stringify(settingsJson))
 })
+
+// set settings of settings.json from external API
+app.post('/settings', (req, res) => {
+  console.log("Got new Settings over API")
+  try {
+    var newSettings = req.body
+    newSettings.ext_upd_flag = true
+    fs.writeFileSync(settingsJsonPath, JSON.stringify(newSettings, null, 2))
+
+    res.sendStatus(200)
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
+});
 
 app.post('/doapost', (req, res) => {
     lastDoaUpdate = Date.now()
@@ -176,12 +217,11 @@ app.post('/doapost', (req, res) => {
       wsTrySend(`{"apikey": "${settingsJson.krakenpro_key}", "data": ${JSON.stringify(req.body)}}`) 
     } else {
       // sends data to all websocket clients
-      /*
       wsServer.clients.forEach(function each(client) {
         if (client.readyState === ws.OPEN) {
           client.send(JSON.stringify(req.body));
         }
-      })*/
+      })
     } 
   res.sendStatus(200)
 });
@@ -193,12 +233,12 @@ app.post('/prpost', (req, res) => {
       wsTrySend(`{"apikey": "${settingsJson.krakenpro_key}", "type": "pr", "data": ${JSON.stringify(req.body)}}`) 
     } else {
       // sends data to all websocket clients
-      /*
+      
       wsServer.clients.forEach(function each(client) {
         if (client.readyState === ws.OPEN) {
           client.send(JSON.stringify(req.body));
         }
-      })*/
+      })
     } 
   res.sendStatus(200)
 });
