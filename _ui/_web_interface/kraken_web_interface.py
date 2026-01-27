@@ -75,7 +75,7 @@ class WebInterface:
         self.remote_control = dsp_settings.get("en_remote_control", False)
 
         self.module_signal_processor = SignalProcessor(
-            data_que=self.sp_data_que, module_receiver=self.module_receiver, logging_level=self.logging_level
+            data_que=self.sp_data_que, module_receiver=self.module_receiver, logging_level=self.logging_level, usefifo=True
         )
         self.module_signal_processor.DOA_ant_alignment = dsp_settings.get("ant_arrangement", "UCA")
         self.module_signal_processor.doa_measure = self._doa_fig_type

@@ -82,7 +82,7 @@ NEAR_ZERO = 1e-15
 
 
 class SignalProcessor(threading.Thread):
-    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10):
+    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10, usefifo=False):
         """
         Parameters:
         -----------
@@ -94,6 +94,10 @@ class SignalProcessor(threading.Thread):
         self.logger.setLevel(logging_level)
 
         self.root_path = root_path
+        self.usefifo = usefifo
+        doa_res_fifo_path = os.path.join(shared_path, "DOA_value-fifo.html")
+        self.DOA_fifo = open(doa_res_fifo_path, "w")
+        
         doa_res_file_path = os.path.join(shared_path, "DOA_value.html")
         self.DOA_res_fd = open(doa_res_file_path, "w+")
 
@@ -779,9 +783,13 @@ class SignalProcessor(threading.Thread):
 
                                 message += sub_message
 
-                            self.DOA_res_fd.seek(0)
-                            self.DOA_res_fd.write(message)
-                            self.DOA_res_fd.truncate()
+                            if self.usefifo:
+                              self.DOA_fifo.write(message)
+                            else:
+                              self.DOA_res_fd.seek(0)
+                              self.DOA_res_fd.write(message)
+                              self.DOA_res_fd.truncate()
+
                         elif self.DOA_data_format == "Kerberos App":
                             self.wr_kerberos(
                                 DOA_str,
