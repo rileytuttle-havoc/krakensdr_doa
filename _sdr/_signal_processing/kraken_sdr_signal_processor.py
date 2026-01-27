@@ -60,6 +60,8 @@ from variables import (
     status_file_path,
 )
 
+import socket
+
 # os.environ['OPENBLAS_NUM_THREADS'] = '4'
 # os.environ['NUMBA_CPU_NAME'] = 'cortex-a72'
 
@@ -82,7 +84,9 @@ NEAR_ZERO = 1e-15
 
 
 class SignalProcessor(threading.Thread):
-    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10, usefifo=False):
+    def __del__(self):
+        self.DOA_socket.close()
+    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10, useudp=False):
         """
         Parameters:
         -----------
@@ -94,9 +98,10 @@ class SignalProcessor(threading.Thread):
         self.logger.setLevel(logging_level)
 
         self.root_path = root_path
-        self.usefifo = usefifo
-        doa_res_fifo_path = os.path.join(shared_path, "DOA_value-fifo.html")
-        self.DOA_fifo = open(doa_res_fifo_path, "w")
+        self.useudp = useudp
+        self.udp_ip = "127.0.0.1"
+        self.udp_port = 12345
+        self.DOA_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         
         doa_res_file_path = os.path.join(shared_path, "DOA_value.html")
         self.DOA_res_fd = open(doa_res_file_path, "w+")
@@ -783,8 +788,8 @@ class SignalProcessor(threading.Thread):
 
                                 message += sub_message
 
-                            if self.usefifo:
-                              self.DOA_fifo.write(message)
+                            if self.useudp:
+                              self.DOA_socket.sendto(message.encode('utf-8'), (self.udp_ip, self.udp_port))
                             else:
                               self.DOA_res_fd.seek(0)
                               self.DOA_res_fd.write(message)
