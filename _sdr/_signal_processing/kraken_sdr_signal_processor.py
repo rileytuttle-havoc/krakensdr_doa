@@ -762,6 +762,7 @@ class SignalProcessor(threading.Thread):
                         # Do Kraken App first as currently its the only one supporting multi-vfo out
                         if self.DOA_data_format != "Kerberos App":
                             message = ""
+                            message_small = ""
                             for j, freq in enumerate(self.freq_list):
                                 # KrakenSDR Android App Output
                                 sub_message = ""
@@ -773,10 +774,14 @@ class SignalProcessor(threading.Thread):
                                 doa_result_log = self.doa_result_log_list[j] + np.abs(
                                     np.min(self.doa_result_log_list[j])
                                 )
+
+                                sub_message_small = ""
+                                sub_message_small += f"{self.timestamp}, {360 - self.theta_0_list[j]}, {self.confidence_list[j]}, {freq}"
                                 for i in range(len(doa_result_log)):
                                     sub_message += ", " + "{:.2f}".format(doa_result_log[i])
 
                                 sub_message += " \n"
+                                sub_message_small += " \n"
 
                                 if self.en_data_record:
                                     time_elapsed = (
@@ -787,9 +792,10 @@ class SignalProcessor(threading.Thread):
                                         self.data_record_fd.write(sub_message)
 
                                 message += sub_message
+                                message_small += sub_message_small
 
                             if self.useudp:
-                              self.DOA_socket.sendto(message.encode('utf-8'), (self.udp_ip, self.udp_port))
+                              self.DOA_socket.sendto(message_small.encode('utf-8'), (self.udp_ip, self.udp_port))
                             else:
                               self.DOA_res_fd.seek(0)
                               self.DOA_res_fd.write(message)
