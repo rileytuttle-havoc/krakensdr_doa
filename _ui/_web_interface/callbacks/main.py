@@ -1150,8 +1150,7 @@ def reconfig_daq_chain(input_value, freq, gain):
     web_interface.module_signal_processor = SignalProcessor(
         data_que=web_interface.sp_data_que,
         module_receiver=web_interface.module_receiver,
-        logging_level=logging_level,
-        useudp=True
+        logging_level=logging_level
     )
     web_interface.module_signal_processor.DOA_ant_alignment = DOA_ant_alignment
     web_interface.module_signal_processor.DOA_inter_elem_space = DOA_inter_elem_space

@@ -20,7 +20,12 @@ cd heimdall_daq_fw/Firmware
 sudo env "PATH=$PATH" ./daq_start_sm.sh
 sleep 1
 cd ../../krakensdr_doa
-sudo env "PATH=$PATH" ./gui_run.sh
+sudo env \
+  "PATH=$PATH" \
+  "USE_UDP=$USE_UDP" \
+  "UDP_SENDTO_IP=$UDP_SENDTO_IP" \
+  "UDP_SENDTO_PORT=$UDP_SENDTO_PORT" \
+  ./gui_run.sh
 
 # Start the  KrakenToTAK python service if it is installed, and not already running.
 if [ -d "../Kraken-to-TAK-Python" ]; then

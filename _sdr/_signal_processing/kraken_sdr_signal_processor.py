@@ -86,7 +86,7 @@ NEAR_ZERO = 1e-15
 class SignalProcessor(threading.Thread):
     def __del__(self):
         self.DOA_socket.close()
-    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10, useudp=False):
+    def __init__(self, data_que, module_receiver: ReceiverRTLSDR, logging_level=10):
         """
         Parameters:
         -----------
@@ -98,9 +98,9 @@ class SignalProcessor(threading.Thread):
         self.logger.setLevel(logging_level)
 
         self.root_path = root_path
-        self.useudp = useudp
-        self.udp_ip = "127.0.0.1"
-        self.udp_port = 12345
+        self.useudp = os.environ.get("USE_UDP", "").lower() in ("1", "true")
+        self.udp_ip = os.environ.get("UDP_SENDTO_IP", "127.0.0.1")
+        self.udp_port = int(os.environ.get("UDP_SENDTO_PORT", "12345"))
         self.DOA_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         
         doa_res_file_path = os.path.join(shared_path, "DOA_value.html")
