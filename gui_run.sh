@@ -53,4 +53,4 @@ $SERVER_BIN "${SHARED_FOLDER}" 2>/dev/null &
 
 # Start nodejs server for KrakenSDR Pro App
 #node _nodejs/index.js 1>/dev/null 2>/dev/null &
-#node _nodejs/index.js >"${SHARED_FOLDER_DOA_LOGS}/node.log" 2>&1 &
+node _nodejs/index.js >"${SHARED_FOLDER_DOA_LOGS}/node.log" 2>&1 &
