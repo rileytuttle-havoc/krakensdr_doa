@@ -267,6 +267,11 @@ class WebInterface:
             self.vfo_cfg_inputs.append(Input(component_id="vfo_" + str(i) + "_demod", component_property="value"))
             self.vfo_cfg_inputs.append(Input(component_id="vfo_" + str(i) + "_iq", component_property="value"))
 
+        # udp settings
+        self.use_udp = dsp_settings.get("use_udp", True)
+        self.udp_sendto_ip = dsp_settings.get("udp_sendto_ip", "127.0.0.1")
+        self.udp_sendto_port = dsp_settings.get("udp_sendto_port", 12345)
+
         self.save_configuration()
         settings_change_watcher(self, settings_file_path)
 
@@ -348,6 +353,10 @@ class WebInterface:
             data["vfo_demod_" + str(i)] = self.module_signal_processor.vfo_demod[i]
             data["vfo_iq_" + str(i)] = self.module_signal_processor.vfo_iq[i]
 
+        data["use_udp"] = self.use_udp
+        data["udp_sendto_ip"] = self.udp_sendto_ip
+        data["udp_sendto_port"] = self.udp_sendto_port
+
         data["ext_upd_flag"] = False
 
         with open(settings_file_path, "w") as outfile:
@@ -428,6 +437,10 @@ class WebInterface:
             data["vfo_squelch_" + str(i)] = -80
             data["vfo_demod_" + str(i)] = "Default"
             data["vfo_iq_" + str(i)] = "Default"
+
+        data["use_udp"] = True
+        data["udp_sendto_ip"] = "127.0.0.1"
+        data["udp_sendto_port"] = 12345
 
         data["ext_upd_flag"] = True
 

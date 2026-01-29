@@ -79,5 +79,8 @@
   "vfo_squelch_14": -120,
   "vfo_bw_15": 12500,
   "vfo_freq_15": 395000000.0,
-  "vfo_squelch_15": -120
+  "vfo_squelch_15": -120,
+  "use_udp": true,
+  "udp_sendto_ip": "127.0.0.1",
+  "udp_sendto_port": 12345
 }

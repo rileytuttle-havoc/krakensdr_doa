@@ -407,6 +407,10 @@ def settings_change_watcher(web_interface, settings_file_path, last_attempt_fail
                             web_interface.ant_spacing_meters / wavelength
                         )
 
+                web_interface.use_udp = dsp_settings.get("use_udp", True)
+                web_interface.udp_sendto_ip = dsp_settings.get("udp_sendto_ip", "127.0.0.1")
+                web_interface.udp_sendto_port = dsp_settings.get("udp_sendto_port", 12345)
+
                 if dsp_settings.get("ext_upd_flag", False):
                     web_interface.needs_refresh = True
                     web_interface.save_configuration()

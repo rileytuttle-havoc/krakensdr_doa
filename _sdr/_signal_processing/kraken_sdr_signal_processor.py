@@ -58,6 +58,7 @@ from variables import (
     root_path,
     shared_path,
     status_file_path,
+    dsp_settings
 )
 
 import socket
@@ -98,9 +99,9 @@ class SignalProcessor(threading.Thread):
         self.logger.setLevel(logging_level)
 
         self.root_path = root_path
-        self.useudp = os.environ.get("USE_UDP", "").lower() in ("1", "true")
-        self.udp_ip = os.environ.get("UDP_SENDTO_IP", "127.0.0.1")
-        self.udp_port = int(os.environ.get("UDP_SENDTO_PORT", "12345"))
+        self.useudp = dsp_settings.get("use_udp", False);
+        self.udp_ip = dsp_settings.get("udp_sendto_ip", "127.0.0.1")
+        self.udp_port = dsp_settings.get("udp_sendto_port", 12345)
         self.DOA_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         
         doa_res_file_path = os.path.join(shared_path, "DOA_value.html")
