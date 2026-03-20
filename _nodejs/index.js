@@ -14,6 +14,9 @@ const wsport = 8021
 const remoteServerDefault = 'wss://map.krakenrf.com:2096'
 const settingsJsonPath = '_share/settings.json'
 
+const { spawn } = require('child_process');
+const path = require('path');
+
 let remoteServer = ''
 let lastDoaUpdate = Date.now()
 let settingsJson = {};
@@ -204,6 +207,23 @@ app.post('/settings', (req, res) => {
   } catch (error) {
     console.error(error)
     res.sendStatus(500)
+  }
+});
+
+app.post('/restart', (req, res) => {
+  console.log("Got restart request")
+  try {
+    const rootPath = path.resolve(__dirname, '../..');
+    const subprocess = spawn('bash', ['kraken_doa_start.sh'], {
+      cwd: rootPath,
+      detached: true,
+      stdio: 'ignore',
+    });
+    subprocess.unref();
+    res.status(200).json({ status: 'restarting' })
+  } catch (err) {
+    console.error('Failed to restart software:', err);
+    res.status(500).json({ status: 'error', message: err.message })
   }
 });
 
